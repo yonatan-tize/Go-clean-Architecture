@@ -50,16 +50,19 @@ You can refer to the detailed API documentation using the link below:
 folder structure
 
 task-manager/
+|__ db
+|   |__database.go
 ├── Delivery/
 │   ├── main.go
 │   ├── controllers/
 │   │   └── controller.go
 │   └── routers/
 │       └── router.go
+├── docs/
+│   └── api_documentation.md
 ├── Domain/
-│   └── domain.go
-|__ db
-|   |__database.go
+│   └── task_domain.go
+|   |___user_domain.go
 ├── Infrastructure/
 │   ├── auth_middleWare.go
 │   ├── jwt_service.go
@@ -70,6 +73,4 @@ task-manager/
 ├── Usecases/
 │   ├── task_usecases.go
 │   └── user_usecases.go
-├── docs/
-│   └── api_documentation.md
 └── README.md
