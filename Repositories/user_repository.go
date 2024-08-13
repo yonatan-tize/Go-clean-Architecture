@@ -28,13 +28,16 @@ func (ur *userRepository) FindUser(ctx context.Context, username string) (domain
 	collection := ur.database.Collection(ur.collection)
 	var existingUser domain.User
 	err := collection.FindOne(context.Background(), bson.M{"username": username}).Decode(&existingUser)
-	if err == nil {
-		return domain.User{}, errors.New("username already exists")
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return domain.User{}, errors.New("user not found")
+		}
+		return domain.User{}, err
 	}
 	return existingUser, nil
 }
 
-func (ur *userRepository) CreateNewUser(ctx context.Context, user domain.User) (domain.User, error){
+func (ur *userRepository) CreateNewUser(ctx context.Context, user *domain.User) (domain.User, error){
 	var existingUser domain.User
 	collection := ur.database.Collection(ur.collection)
 	err := collection.FindOne(ctx, bson.M{"username": user.Username}).Decode(&existingUser)
@@ -58,7 +61,7 @@ func (ur *userRepository) CreateNewUser(ctx context.Context, user domain.User) (
 	if err != nil{
 		return domain.User{}, errors.New("failed to insert data")
 	}
-	return user, nil 
+	return *user, nil 
 }
 
 

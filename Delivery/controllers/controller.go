@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type TaskController struct {
@@ -14,6 +15,7 @@ type TaskController struct {
 type UserController struct {
 	UserUseCase domain.UserUseCase
 }
+var validate = validator.New()
 
 func (uc *UserController) CreateAccount(c *gin.Context) {
 
@@ -21,6 +23,10 @@ func (uc *UserController) CreateAccount(c *gin.Context) {
 	if err := c.ShouldBindJSON(&newUser); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+	err := validate.Struct(newUser)
+	if err != nil{
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 	user, err := uc.UserUseCase.CreateAccount(c, &newUser)
 
@@ -42,7 +48,8 @@ func (uc *UserController) Login(c *gin.Context) {
 
 	user, token, err := uc.UserUseCase.AuthenticateUser(c, user.Username, user.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return 
 	}
 	c.JSON(http.StatusAccepted, gin.H{"token": token, "user": user})
 }
@@ -63,7 +70,7 @@ func (tc *TaskController) GetTasks(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to fetch tasks"})
 		return
 	}
-	c.JSON(http.StatusOK, tasks)
+	c.JSON(http.StatusOK, gin.H{"message": "the data is", "tasks" :tasks })
 }
 
 func (tc *TaskController) GetTask(c *gin.Context) {

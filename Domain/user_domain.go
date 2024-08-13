@@ -18,7 +18,7 @@ type User struct {
 
 type UserRepository interface {
 	FindUser(ctx context.Context, userId string) (User, error)
-	CreateNewUser(ctx context.Context, user User) (User, error)
+	CreateNewUser(ctx context.Context, user *User) (User, error)
 	PromoteUser(ctx context.Context, userId string) error
 }
 

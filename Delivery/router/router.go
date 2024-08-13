@@ -12,8 +12,8 @@ import (
 )
 func SetUpRouter(router *gin.Engine, db mongo.Database, time time.Duration) {
 
-	tr := repository.NewTaskRepository(db, "User")
-	ur := repository.NewUserRepository(db, "Tasks")
+	tr := repository.NewTaskRepository(db, "tasks")
+	ur := repository.NewUserRepository(db, "users")
 
 	tc := controllers.TaskController{
 		TaskUseCase: usecases.NewTaskUsecase(tr, time),

@@ -19,9 +19,6 @@ func NewTaskUsecase(taskRepository domain.TaskRepository, timeout time.Duration)
 	}
 }
 
-// CreateTask(ctx context.Context, task Task) error
-// UpdateTaskById(ctx context.Context, task Task, id string) error
-// // DeleteTask(ctx context.Context, taskId string) error
 func (tu *taskUseCase) GetAllTasks(c context.Context) ([]domain.Task, error){
 	ctx, close := context.WithTimeout(c, tu.contextTimeout)
 	defer close()

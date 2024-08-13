@@ -22,35 +22,40 @@ func NewTaskRepository(db mongo.Database, collection string) domain.TaskReposito
 	}
 }
 
-func (tr *taskRepository) FindAlltasks(ctx context.Context) ([]domain.Task, error){
-	collection := tr.database.Collection(tr.collection)
-	var tasks []domain.Task
-	cursor, err := collection.Find(context.Background(), bson.D{}) // change this with the database collection
-	if err != nil{
-		return nil, err
-	}
-	defer cursor.Close(context.TODO())
-	
-	for cursor.Next(context.TODO()){
-		var task domain.Task
-		err := cursor.Decode(&task) 
-		if err != nil{
-			return nil, err
-		}
-		tasks = append(tasks, task)
-	}
-	if err := cursor.Err(); err != nil{
-		return nil, err
-	}
-	return tasks, nil
+func (tr *taskRepository) FindAlltasks(ctx context.Context) ([]domain.Task, error) {
+    collection := tr.database.Collection(tr.collection)
+    var tasks []domain.Task
+    cursor, err := collection.Find(ctx, bson.D{})
+    if err != nil {
+        return nil, err
+    }
+    defer cursor.Close(ctx)
+
+    for cursor.Next(ctx) {
+        var task domain.Task
+        if err := cursor.Decode(&task); err != nil {
+            return nil, err
+        }
+        tasks = append(tasks, task)
+    }
+
+    if err := cursor.Err(); err != nil {
+        return nil, err
+    }
+
+    return tasks, nil
 }
 
 func (tr *taskRepository) FindTaskById(ctx context.Context, taskId string) (domain.Task, error){
-	filter := bson.M{"_id": taskId}
 	collection := tr.database.Collection(tr.collection)
-
+	objID, err := primitive.ObjectIDFromHex(taskId)
+	if err != nil{
+		return domain.Task{}, err
+	}
+	filter := bson.M{"_id": objID}
+	
 	var task domain.Task
-    err := collection.FindOne(context.TODO(), filter).Decode(&task)
+    err = collection.FindOne(ctx, filter).Decode(&task)
     if err != nil {
         if err == mongo.ErrNoDocuments {
             return domain.Task{}, err // No document found
@@ -64,7 +69,7 @@ func (tr *taskRepository) CreateTask(ctx context.Context, task domain.Task) (dom
 	collection := tr.database.Collection(tr.collection)
 	task.ID = primitive.NewObjectID()
     // Insert the task into the collection
-    _, err := collection.InsertOne(context.TODO(), task)
+    _, err := collection.InsertOne(ctx, task)
     if err != nil {
         return domain.Task{}, err
 	}
@@ -85,7 +90,7 @@ func (tr *taskRepository) UpdateTaskById(ctx context.Context, updatedTask domain
     filter := bson.M{"_id": id}
     opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
     var updated domain.Task
-    err := collection.FindOneAndUpdate(context.TODO(), filter, update, opts).Decode(&updated)
+    err := collection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updated)
     if err != nil {
         if err == mongo.ErrNoDocuments {
             return domain.Task{}, err

@@ -7,7 +7,6 @@ import (
 
 	domain "example/go-clean-architecture/Domain"
 	infrastructure "example/go-clean-architecture/Infrastructure"
-	"github.com/go-playground/validator/v10"
 )
 
 type userUseCase struct {
@@ -24,16 +23,13 @@ func NewUserUsecase(userRepository domain.UserRepository, timeout time.Duration)
 	}
 }
 
-var validate = validator.New()
-
-
 func (ur *userUseCase) AuthenticateUser(c context.Context, userName string, password string) (domain.User, string, error) {
 
 	ctx, close := context.WithTimeout(c, ur.contextTimeout)
 	defer close()
 	user, err := ur.userRepository.FindUser(ctx, userName)
 	if err != nil{
-		return domain.User{}, "", errors.New("wrong password")
+		return domain.User{}, "", errors.New("user not found")
 	}
 
 	//verify the password
@@ -54,10 +50,6 @@ func (ur *userUseCase) CreateAccount(c context.Context, user *domain.User) (doma
 	ctx, close := context.WithTimeout(c, ur.contextTimeout)
 	defer close()
 
-	err := validate.Struct(user)
-	if err != nil {
-		return domain.User{}, err
-	}
 	//hash the password and send to database
 	hashedPassword, err := infrastructure.HashPassword(user.Password)
 	if err != nil {
@@ -67,7 +59,7 @@ func (ur *userUseCase) CreateAccount(c context.Context, user *domain.User) (doma
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
-	return ur.userRepository.CreateNewUser(ctx, *user)
+	return ur.userRepository.CreateNewUser(ctx, user)
 }
 
 // UpdateUserRole implements domain.UserUseCase.
