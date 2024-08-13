@@ -16,11 +16,6 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// GenerateTokens generates a JWT token for the given user.
-// It takes a user object as input and returns the generated token string and an error, if any.
-// The token is valid for 24 hours from the current time.
-// The user's ID, username, and role are included as claims in the token.
-// The token is signed using the SECRET_KEY.
 func GenerateToken(user domain.User) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour) // Token valid for 24 hours
 

@@ -3,16 +3,17 @@ package Infrastructure
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
 // AuthMiddleware is a middleware function that handles authentication for incoming requests.
-// It checks for the presence of an Authorization header and validates the token.
+// It checks the "Authorization" header in the request and validates the token.
 // If the header is missing or the token is invalid, it returns a 401 Unauthorized response.
-// If the token is valid, it extracts the user ID and role from the token claims and sets them in the context.
-// Finally, it calls the next handler in the chain.
+// If the token has expired, it returns a 401 Unauthorized response.
+// If the token is valid, it sets the "user_id" and "role" values in the context and allows the request to proceed.
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -37,7 +38,13 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		claims, _ := token.Claims.(jwt.MapClaims)
+		
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok || int64(claims["exp"].(float64)) < time.Now().Unix() {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token has expired"})
+			c.Abort()
+			return
+		}
 		c.Set("user_id", claims["user_id"])
 		c.Set("role", claims["role"])
 

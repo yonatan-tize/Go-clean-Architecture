@@ -10,6 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+// SetUpRouter sets up the router for the application.
+// It configures the routes and middleware for different endpoints.
+// The router parameter is a pointer to a gin.Engine instance.
+// The db parameter is a mongo.Database instance representing the database connection.
+// The time parameter is a time.Duration value representing the duration for certain operations.
 func SetUpRouter(router *gin.Engine, db mongo.Database, time time.Duration) {
 
 	tr := repository.NewTaskRepository(db, "tasks")

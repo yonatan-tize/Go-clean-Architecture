@@ -2,6 +2,11 @@ package Infrastructure
 
 import "golang.org/x/crypto/bcrypt"
 
+
+// HashPassword takes a password string and returns the hashed version of the password.
+// It uses bcrypt.GenerateFromPassword to generate the hash with the default cost.
+// If an error occurs during the hashing process, it returns an empty string and the error.
+// Otherwise, it returns the hashed password as a string and nil error.
 func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
