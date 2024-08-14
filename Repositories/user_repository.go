@@ -21,7 +21,7 @@ func NewUserRepository(db mongo.Database, collection string) *userRepository {
 		collection: collection,
 	}
 }
-// FindUser(ctx context.Context, userId string) User
+// FindUser(ctx context.Context, username string) User
 // 	CreateNewUser(ctx context.Context, user User) error
 // 	PromoteUser(ctx context.Context, userId string) error
 func (ur *userRepository) FindUser(ctx context.Context, username string) (domain.User, error){
@@ -37,6 +37,9 @@ func (ur *userRepository) FindUser(ctx context.Context, username string) (domain
 	return existingUser, nil
 }
 
+// CreateNewUser creates a new user in the database.
+// It takes a context and a user object as input parameters.
+// It returns the created user object and an error if any.
 func (ur *userRepository) CreateNewUser(ctx context.Context, user *domain.User) (domain.User, error){
 	var existingUser domain.User
 	collection := ur.database.Collection(ur.collection)
@@ -67,8 +70,11 @@ func (ur *userRepository) CreateNewUser(ctx context.Context, user *domain.User) 
 
 func (ur *userRepository) PromoteUser(ctx context.Context, userId string) error{
 	collection := ur.database.Collection(ur.collection)
-
-	filter := bson.M{"_id": userId}
+	objID, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return err // Return an error if userId is not a valid ObjectID
+	}
+	filter := bson.M{"_id": objID}
 	update := bson.M{
 		"$set": bson.M{
 			"role": "ADMIN",
