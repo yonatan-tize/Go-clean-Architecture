@@ -1,0 +1,35 @@
+name: Go CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.22.5  # Specify your Go version
+
+    - name: Install dependencies
+      run: go mod tidy
+
+    - name: Run controller tests
+      run: go test ./Delivery/controllers -v
+
+    - name: Run infrastructure tests
+      run: go test ./Infrastructure -v
+
+    - name: Run usecase tests
+      run: go test ./Usecases -v
+
+    - name: Build application
+      run: go build -v ./...
