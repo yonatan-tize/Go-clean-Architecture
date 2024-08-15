@@ -13,21 +13,6 @@ import (
 	// "github.com/stretchr/testify/suite"
 )
 
-// TestSuite struct that holds all the mocks and controllers
-// type TestSuite struct {
-// 	suite.Suite
-// 	mockUserUseCase *mocks.UserUseCase
-// 	userController  UserController
-// }
-
-// SetupTest initializes the test suite before each test
-// func (suite *TestSuite) SetupTest() {
-// 	suite.mockUserUseCase = new(mocks.UserUseCase)
-// 	suite.userController = UserController{
-// 		UserUseCase: suite.mockUserUseCase,
-// 	}
-// }
-
 // TestCreateAccount tests the CreateAccount method
 func (suite *TestSuite) TestCreateAccount() {
 	// Mock data
@@ -105,8 +90,3 @@ func (suite *TestSuite) TestPromoteUser() {
 	assert.Equal(suite.T(), http.StatusOK, w.Code)
 	suite.mockUserUseCase.AssertExpectations(suite.T())
 }
-
-// Run the test suite
-// func TestControllerSuite(t *testing.T) {
-// 	suite.Run(t, new(TestSuite))
-// }

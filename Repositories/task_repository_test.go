@@ -27,6 +27,9 @@ type TaskRepositoryTestSuite struct {
 	repo       domain.TaskRepository
 }
 
+// SetupSuite sets up the test suite for the TaskRepository.
+// It connects to the MongoDB test instance, pings the MongoDB instance to ensure connection is established,
+// and initializes the necessary variables for the test suite.
 func (suite *TaskRepositoryTestSuite) SetupSuite() {
 	// Connect to the MongoDB test instance
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
@@ -43,6 +46,8 @@ func (suite *TaskRepositoryTestSuite) SetupSuite() {
 	suite.repo = NewTaskRepository(*suite.db, suite.collection)
 }
 
+// TearDownSuite is a function that is called after all tests have run in the TaskRepositoryTestSuite.
+// It is responsible for dropping the test database and disconnecting from MongoDB.
 func (suite *TaskRepositoryTestSuite) TearDownSuite() {
 	// Drop the test database after all tests have run
 	err := suite.db.Drop(context.Background())
@@ -53,6 +58,13 @@ func (suite *TaskRepositoryTestSuite) TearDownSuite() {
 	suite.Require().NoError(err)
 }
 
+// TestCreateTask tests the CreateTask method of the TaskRepository.
+//
+// It creates a new task with the given title, description, status, and due date.
+// Then, it calls the CreateTask method of the repository to insert the task into the database.
+// It verifies that no error occurred during the insertion.
+// Finally, it retrieves the inserted task from the database and compares its title with the original task's title.
+// It also checks that no error occurred during the retrieval.
 func (suite *TaskRepositoryTestSuite) TestCreateTask() {
 	task := domain.Task{
 		Title:       title,
@@ -74,6 +86,8 @@ func (suite *TaskRepositoryTestSuite) TestCreateTask() {
 	suite.NoError(err, "no error when creating and finding the same task")
 }
 
+// TestFindAlltasks is a unit test function that tests the FindAlltasks method of the TaskRepository.
+// It verifies that the correct number of tasks were fetched and that the fetched tasks have the same title, description, status, and due date as the previously created task.
 func (suite *TaskRepositoryTestSuite) TestFindAlltasks() {
 	fetchedTasks, err := suite.repo.FindAlltasks(context.Background())
 	suite.Require().NoError(err)
@@ -87,10 +101,16 @@ func (suite *TaskRepositoryTestSuite) TestFindAlltasks() {
 	assert.Equal(suite.T(), description, tasks.Description, "Same task description with the previously created task")
 	assert.Equal(suite.T(), status, tasks.Status, "Same task status with the previously created task")
 	assert.Equal(suite.T(), due_date, tasks.DueDate, "Same task due_date with the previously created task")
-	
-
 }
 
+// TestFindTaskById tests the functionality of finding a task by its ID.
+//
+// It creates a new task, retrieves it by its ID, and then verifies if the retrieved task matches the original task.
+// The test performs the following steps:
+// 1. Creates a new task with a title, description, status, and due date.
+// 2. Calls the `CreateTask` method of the repository to create the task.
+// 3. Retrieves the task by its ID using the `FindTaskById` method of the repository.
+// 4. Verifies if the retrieved task matches the original task.
 func (suite *TaskRepositoryTestSuite) TestFindTaskById() {
 	task := domain.Task{
 		Title: "New Task",
@@ -113,6 +133,16 @@ func (suite *TaskRepositoryTestSuite) TestFindTaskById() {
 }
 
 
+// TestUpdateTaskById tests the functionality of updating a task by its ID.
+//
+// It creates a new task, updates its properties, and then verifies if the task is updated correctly.
+// The test performs the following steps:
+// 1. Creates a new task with a title, description, status, and due date.
+// 2. Calls the `CreateTask` method of the repository to create the task.
+// 3. Updates the task's title, description, status, and due date with new values.
+// 4. Calls the `UpdateTaskById` method of the repository to update the task.
+// 5. Retrieves the updated task from the database and verifies if it matches the updated values.
+// 6. Retrieves the task by its ID and verifies if its fields are updated correctly.
 func (suite *TaskRepositoryTestSuite) TestUpdateTaskById() {
 	task := domain.Task{
 		Title: "New Task",
@@ -158,6 +188,10 @@ func (suite *TaskRepositoryTestSuite) TestUpdateTaskById() {
 	assert.Equal(suite.T(), newDueDate, taskFound.DueDate, "Same updated task due_date with the previously updated task")
 }
 
+// TestDeleteTask tests the DeleteTask method of the TaskRepository.
+//
+// It creates a new task, inserts it into the database, verifies the task is inserted,
+// and then deletes the task using the DeleteTask method. It asserts that no error occurs during the process.
 func (suite *TaskRepositoryTestSuite) TestDeleteTask() {
 	
 

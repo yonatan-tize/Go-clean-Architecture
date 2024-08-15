@@ -26,6 +26,9 @@ type UserRepositoryTestSuite struct {
 	repo       domain.UserRepository
 }
 
+// SetupSuite is a setup function for the User Repository test suite.
+// It connects to the MongoDB test instance, pings the MongoDB instance to ensure connection is established,
+// and initializes the necessary variables for the test suite.
 func (suite *UserRepositoryTestSuite) SetupSuite() {
 	// Connect to the MongoDB test instance
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
@@ -42,6 +45,8 @@ func (suite *UserRepositoryTestSuite) SetupSuite() {
 	suite.repo = NewUserRepository(*suite.db, suite.collection)
 }
 
+// TearDownSuite is a function that is called after all tests have run to clean up resources.
+// It drops the test database and disconnects from MongoDB.
 func (suite *UserRepositoryTestSuite) TearDownSuite() {
 	// Drop the test database after all tests have run
 	err := suite.db.Drop(context.Background())
@@ -53,6 +58,11 @@ func (suite *UserRepositoryTestSuite) TearDownSuite() {
 }
 
 
+// TestCreateUser tests the CreateUser method of the UserRepository.
+// It creates a new user with the given username, password, and role.
+// The user is then inserted into the database and verified.
+// The test ensures that the user is successfully created and can be found in the database.
+// If any error occurs during the test, it will be reported.
 func (suite *UserRepositoryTestSuite) TestCreateUser() {
 
 	newUser := domain.User{
@@ -79,6 +89,8 @@ func (suite *UserRepositoryTestSuite) TestCreateUser() {
 }
 
 
+// TestFindUser tests the FindUser method of the UserRepository.
+// It fetches a user from the repository and verifies that the fetched user's username and role match the previously inserted values.
 func (suite *UserRepositoryTestSuite) TestFindUser() {
 	fetchedUser, err := suite.repo.FindUser(context.Background(), userName)
 	suite.Require().NoError(err)
@@ -89,6 +101,14 @@ func (suite *UserRepositoryTestSuite) TestFindUser() {
 }
 
 
+// TestPromoteUser tests the functionality of promoting a user.
+//
+// It creates a new user with the given username, password, and role.
+// Then it inserts the user into the database collection.
+// It retrieves the inserted user from the database and verifies that it was inserted successfully.
+// Next, it calls the PromoteUser method of the repository with the user's ID.
+// Finally, it retrieves the updated user from the database and verifies that the role has changed.
+// If any error occurs during the test, it fails the test.
 func (suite *UserRepositoryTestSuite) TestPromoteUser() {
 	newUser := domain.User{
 		Username: "sister",
