@@ -1,11 +1,11 @@
 package router
 
 import (
-	"time"
 	controllers "example/go-clean-architecture/Delivery/controllers"
 	infrastructure "example/go-clean-architecture/Infrastructure"
+	repository "example/go-clean-architecture/Repositories"
 	usecases "example/go-clean-architecture/Usecases"
-	repository "example/go-clean-architecture/repositories"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
