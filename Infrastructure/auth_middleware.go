@@ -3,7 +3,6 @@ package Infrastructure
 import (
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -33,24 +32,31 @@ func AuthMiddleware() gin.HandlerFunc {
 		token, err := jwt.Parse(authParts[1], func(token *jwt.Token) (interface{}, error) {
 			return []byte("MY-Secret-Key"), nil
 		})
-		if err != nil || !token.Valid {
+
+		if err != nil {
+			// Check if the error is due to token expiration
+			if ve, ok := err.(*jwt.ValidationError); ok && ve.Errors == jwt.ValidationErrorExpired {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Token has expired"})
+			} else {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			}
+			c.Abort()
+			return
+		}
+
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			c.Set("user_id", claims["user_id"])
+			c.Set("role", claims["role"])
+		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()
 			return
 		}
-		
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok || int64(claims["exp"].(float64)) < time.Now().Unix() {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token has expired"})
-			c.Abort()
-			return
-		}
-		c.Set("user_id", claims["user_id"])
-		c.Set("role", claims["role"])
 
 		c.Next()
 	}
 }
+
 
 // AuthAdminMiddleware is a middleware function that checks if the user has admin access.
 // It retrieves the user's role from the context and verifies if it is set to "ADMIN".
