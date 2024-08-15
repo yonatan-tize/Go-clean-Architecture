@@ -119,13 +119,13 @@ func (suite *TestSuite) TestCreateTask() {
 	newTask := Domain.Task{
 		Title: "New Task", 
 		Description: "This is a new task",
-		DueDate: time.Now().Truncate(0),
+		DueDate:  time.Date(2024, time.August, 15, 21, 19, 31, 703415278, time.UTC),
 	}
 	createdTask := Domain.Task{
 		ID: primitive.NewObjectID(), 
 		Title: "New Task", 
 		Description: "This is a new task",
-		DueDate: time.Now().Truncate(0),
+		DueDate:  time.Date(2024, time.August, 15, 21, 19, 31, 703415278, time.UTC),
 	}
 
 	// Mock the AddNewTask method
